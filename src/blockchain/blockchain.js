@@ -3,6 +3,7 @@ import Block from './block'
 import {crypto} from 'bitcoinjs-lib'
 import bs58 from 'bs58'
 import Storage from './storage'
+import Error from './errors'
 
 class Blockchain {
 
@@ -48,12 +49,26 @@ class Blockchain {
         return block
     }
 
-    isValid(block) {
-        return block.isValid && block.chainID===this.id
+    // isValid(block) {
+    //     return block.isValid && block.chainID===this.id
+    // }
+
+    validateBlock(block) {
+        if (block.isValid() === false)
+            return Error.InvalidBlockError("block hash or signature is invalid", block)
+        if (block.chainID != this.id)
+            return Error.MismatchedIDError("the block id mismatch chain id", block)
+        let exitsBlock = this.getBlock(block.height)
+        if (exitsBlock != null){
+            if ((exitsBlock.prevHash !== block.prevHash) || (exitsBlock.blockHash !== block.blockHash))
+                return Error.MismatchedIDError("the block id mismatch chain id", exitsBlock, block)
+            return Error.ExistBlockError("block already exist", block)
+        }
+        return null
     }
 
     saveBlock(block) {
-        if (block.isValid() && this.isValid(block) && this.getBlock(block.height) == null) {
+        if (this.validateBlock(block) == null) {
             Storage.saveBlock(block, this.id)
             if (this.count === null)
                 this.updateChainCount(block.height)

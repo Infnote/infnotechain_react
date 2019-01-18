@@ -16,9 +16,9 @@ class Info extends Behavior {
 
     validate() {
         if (this.version !== '1.1')
-            return new Error(0, "version error")
-        if (this.peer < 0)
-            return new Error(0, "peer")
+            return Error.IncompatibleProtocolVersion("only accept v1.1 protocol")
+        if (this.peers < 0)
+            return Error.BadRequestError("'peers' needs to be a non-negative number")
         return null
     }
 
@@ -47,7 +47,7 @@ class RequestPeer extends Behavior {
 
     validate() {
         if (this.count <= 0)
-            return new Error(0, "count error")
+            return Error.BadRequestError("'count' needs to be a non-negative number")
         return null
     }
 
@@ -69,7 +69,7 @@ class ResponsePeers extends Behavior {
         for (var key in this.peers) {
             let protocol = url.parse(this.peers[key]).protocol
             if ((protocol !== 'wss:') && (protocol !== 'ws:'))
-                return new Error(0, "Protocol Error")
+                return Error.URLError("not a websocket URL")
         }
         return null
     }
@@ -91,11 +91,11 @@ class RequestBlocks extends Behavior {
 
     validate() {
         if (SETTINGS.chains.includes(this.chainID) === false)
-            return new Error(0, 'chain error')
+            return Error.ChainNotAcceptError(this.ChainID)
         if (this.from > this.to)
-            return new Error(0, 'range error')
+            return Error.BadRequestError("'from' must greater or equal 'to'")
         if (Storage.getChainCount(this.chainID) < this.from)
-            return new Error(0, 'range error')
+            return Error.BadRequestError("request not existed blocks")
         return null
     }
 
@@ -137,13 +137,12 @@ class ResponseBlocks extends Behavior {
         for (var i in this.blocksJSON) {
             let blockJSON = this.blocksJSON[i]
             let block = Block.fromJSON(blockJSON)
-            if (block.isValid() === false)
-                return new Error(0, 'block error')
             if (SETTINGS.chains.includes(block.chainID) === false)
-                return new Error(0, 'chain error')
+                return Error.ChainNotAcceptError(block.chainID())
             let blockchain = new Blockchain(block.chainID)
-            if (blockchain.isValid(block) === false)
-                return new Error(0, 'block error')
+            let err = blockchain.validateBlock(block)
+            if (err != null)
+                return Error.blockValidationError(err)
             this.blocks.push(block)
         }
         return null
@@ -169,15 +168,12 @@ class BroadcastBlock extends Behavior {
 
     validate() {
         let block = Block.fromJSON(this.blockJSON)
-        if (block.isValid() === false)
-            return new Error(0, 'block error')
         if (SETTINGS.chains.includes(block.chainID) === false)
-            return new Error(0, 'chain error')
+            return Error.ChainNotAcceptError(block.chainID())
         let blockchain = new Blockchain(block.chainID)
-        if (blockchain.isValid(block) === false)
-            return new Error(0, 'block error')
-        if (blockchain.getBlock(block.height) !== null)
-            return new Error(0, 'BlockAlreadyExistError')
+        let err = blockchain.validateBlock(block)
+        if (err != null)
+            return Error.blockValidationError(err)
         this.block = block
         return null
     }
