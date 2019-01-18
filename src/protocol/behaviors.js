@@ -5,13 +5,20 @@ import Error from './errors'
 import url from 'url'
 
 class Info extends Behavior {
-    constructor(version, peers, chains, platform, fullNode) {
+    static getMembers(){
+        return ['version', 'peers', 'chains', 'platform', 'fullNode']
+    }
+
+    constructor(props) {
         super()
-        this.version = version
-        this.peers = peers
-        this.chains = chains
-        this.platform = platform
-        this.fullNode = fullNode
+        if (props)
+            Info.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        Info.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {
@@ -25,7 +32,7 @@ class Info extends Behavior {
     react() {
         var behaviors = []
         if (this.peers > 0)
-            behaviors.push(new RequestPeer(this.peers))
+            behaviors.push(new RequestPeer({'count':this.peers}))
         for (var i in this.chains) {
             let key = Object.keys(this.chains[i])[0]
             let value = this.chains[i][key]
@@ -33,16 +40,27 @@ class Info extends Behavior {
                 continue
             if (Storage.getChainCount(key) > value)
                 continue
-            behaviors.push(new RequestBlocks(key, Storage.getChainCount(key), value - 1))
+            behaviors.push(new RequestBlocks({'chainID':key, 'from':Storage.getChainCount(key), 'to':value - 1}))
         }
         return behaviors
     }
 }
 
 class RequestPeer extends Behavior {
-    constructor(count) {
+    static getMembers(){
+        return ['count']
+    }
+
+    constructor(props) {
         super()
-        this.count = count
+        if (props)
+            RequestPeer.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        RequestPeer.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {
@@ -54,15 +72,26 @@ class RequestPeer extends Behavior {
     react() {
         var behaviors = []
         // TODO: maintain peers
-        behaviors.push(new ResponsePeers(['wss://chain.infnote.com:32767/', 'wss://chain.infnote.com:32761/']))
+        behaviors.push(new ResponsePeers({'peers':['wss://chain.infnote.com:32767/', 'wss://chain.infnote.com:32761/']}))
         return behaviors
     }
 }
 
 class ResponsePeers extends Behavior {
-    constructor(peers) {
+    static getMembers(){
+        return ['peers']
+    }
+
+    constructor(props) {
         super()
-        this.peers = peers
+        if (props)
+            ResponsePeers.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        ResponsePeers.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {
@@ -82,11 +111,20 @@ class ResponsePeers extends Behavior {
 }
 
 class RequestBlocks extends Behavior {
-    constructor(chainID, from, to) {
+    static getMembers(){
+        return ['chainID','from','to']
+    }
+
+    constructor(props) {
         super()
-        this.chainID = chainID
-        this.from = from
-        this.to = to
+        if (props)
+            RequestBlocks.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        RequestBlocks.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {
@@ -111,26 +149,37 @@ class RequestBlocks extends Behavior {
                 break
 
             if (size + block.size > 1024 * 100) {
-                behaviors.push(new ResponseBlocks(blocks))
+                behaviors.push(new ResponseBlocks({'blocksJSON':blocks}))
                 blocks = []
-                blocks.push(block)
+                blocks.push(block.toJSON())
                 size = block.size
             } else {
-                blocks.push(block)
+                blocks.push(block.toJSON())
                 size += block.size
             }
         }
         if (blocks.length > 0)
-            behaviors.push(new ResponseBlocks(blocks))
+            behaviors.push(new ResponseBlocks({'blocksJSON':blocks}))
         return behaviors
     }
 }
 
 class ResponseBlocks extends Behavior {
-    constructor(blocksJSON) {
+    static getMembers(){
+        return ['blocksJSON']
+    }
+
+    constructor(props) {
         super()
-        this.blocksJSON = blocksJSON
         this.blocks = []
+        if (props)
+            ResponseBlocks.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        ResponseBlocks.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {
@@ -160,10 +209,21 @@ class ResponseBlocks extends Behavior {
 }
 
 class BroadcastBlock extends Behavior {
-    constructor(blockJSON) {
+    static getMembers(){
+        return ['blockJSON']
+    }
+
+    constructor(props) {
         super()
-        this.blockJSON = blockJSON
         this.block = null
+        if (props)
+            BroadcastBlock.getMembers().forEach(name => this[name] = props[name])
+    }
+
+    toJSON() {
+        var dict = {}
+        BroadcastBlock.getMembers().forEach(name => dict[name] = this[name])
+        return JSON.stringify(dict)
     }
 
     validate() {

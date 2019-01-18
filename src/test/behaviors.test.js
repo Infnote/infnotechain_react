@@ -3,20 +3,20 @@ import {Blockchain, Key} from '../blockchain'
 
 test("Info rection test", () => {
     localStorage.clear()
-    var info = new Info('1.1',2,[{'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45':10}],'web',false)
+    var info = new Info({'version':'1.1','peers':2,'chains':[{'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45':10}],'platform':'web','fullNode':false})
     expect(info.validate()).toEqual(null)
-    expect(info.react()).toEqual([new RequestPeer(2), new RequestBlocks('19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45',0,9)])
+    expect(info.react()).toEqual([new RequestPeer({'count':2}), new RequestBlocks({'chainID':'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45','from':0,'to':9})])
     localStorage.clear()
 })
 
 test("RequestPeer rection test", () => {
-    var requestPeer = new RequestPeer(2)
+    var requestPeer = new RequestPeer({'count':2})
     expect(requestPeer.validate()).toEqual(null)
-    expect(requestPeer.react()).toEqual([new ResponsePeers(['wss://chain.infnote.com:32767/','wss://chain.infnote.com:32761/'])])
+    expect(requestPeer.react()).toEqual([new ResponsePeers({'peers':['wss://chain.infnote.com:32767/','wss://chain.infnote.com:32761/']})])
 })
 
 test("ResponsePeers rection test", () => {
-    var responsePeers = new ResponsePeers(['wss://chain.infnote.com:32767/','ws://chain.infnote.com:32761/'])
+    var responsePeers = new ResponsePeers({'peers':['wss://chain.infnote.com:32767/','ws://chain.infnote.com:32761/']})
     expect(responsePeers.validate()).toEqual(null)
     expect(responsePeers.react()).toEqual([])
 })
@@ -31,9 +31,9 @@ test("RequestBlock test", () => {
     expect(blockchain.saveBlock(block1)).toBeTruthy()
     let block2 = blockchain.createBlock(buf, 2)
     expect(blockchain.saveBlock(block2)).toBeTruthy()
-    var requestBlock = new RequestBlocks(blockchain.id,0,2)
+    var requestBlock = new RequestBlocks({'chainID':blockchain.id,'from':0,'to':2})
     expect(requestBlock.validate()).toEqual(null)
-    expect(requestBlock.react()).toEqual([new ResponseBlocks([block0,block1,block2])])
+    expect(requestBlock.react()).toEqual([new ResponseBlocks({'blocksJSON':[block0.toJSON(),block1.toJSON(),block2.toJSON()]})])
     localStorage.clear()
 })
 
@@ -48,7 +48,7 @@ test("ResponseBlocks test", () => {
     let block2 = blockchain.createBlock(buf, 2)
     expect(blockchain.saveBlock(block2)).toBeTruthy()
     localStorage.clear()
-    var responseBlocks = new ResponseBlocks([block0.toJSON(),block1.toJSON(),block2.toJSON()])
+    var responseBlocks = new ResponseBlocks({'blocksJSON':[block0.toJSON(),block1.toJSON(),block2.toJSON()]})
     expect(responseBlocks.validate()).toEqual(null)
     expect(responseBlocks.react()).toEqual([])
     localStorage.clear()
@@ -63,7 +63,7 @@ test("BroadcastBlock test", () => {
     let block1 = blockchain.createBlock(buf, 1)
     expect(blockchain.saveBlock(block1)).toBeTruthy()
     let block2 = blockchain.createBlock(buf, 2)
-    var broadcastBlock = new BroadcastBlock(block2.toJSON())
+    var broadcastBlock = new BroadcastBlock({'blockJSON':block2.toJSON()})
     expect(broadcastBlock.validate()).toEqual(null)
     expect(broadcastBlock.react()).toEqual([])
     localStorage.clear()

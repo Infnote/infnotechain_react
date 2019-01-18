@@ -19,7 +19,7 @@ class Message {
 
     constructor(type = null, jsonString = null) {
         this.type = type
-        this.data = JSON.parse(jsonString)
+        this.data = jsonString
         this.id = Message.generateID()
     }
 
