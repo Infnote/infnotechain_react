@@ -53,7 +53,7 @@ class Blockchain {
     }
 
     saveBlock(block) {
-        if (block.isValid(this.id) && this.getBlock(block.height) == null) {
+        if (block.isValid() && this.isValid(block) && this.getBlock(block.height) == null) {
             Storage.saveBlock(block, this.id)
             if (this.count === null)
                 this.updateChainCount(block.height)
