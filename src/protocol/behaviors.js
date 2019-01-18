@@ -1,19 +1,8 @@
 import SETTINGS from '../utils/settings'
-import { Storage, Blockchain, Block } from '../blockchain'
+import {Storage, Blockchain, Block } from '../blockchain'
+import Behavior from './behavior'
+import Error from './errors'
 import url from 'url'
-
-class Behavior {
-    react() { }
-    validate() { }
-}
-
-class Error extends Behavior {
-    constructor(code, desc) {
-        super()
-        this.code = code
-        this.desc = desc
-    }
-}
 
 class Info extends Behavior {
     constructor(version, peers, chains, platform, fullNode) {
@@ -201,4 +190,4 @@ class BroadcastBlock extends Behavior {
     }
 }
 
-export { Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock }
+export {Behavior, Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock }
