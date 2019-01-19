@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 //import logo from './logo.svg'
 import './App.css'
-import {Peer} from './network'
+import {Service} from './network'
 
 class App extends Component {
 
@@ -14,12 +14,8 @@ class App extends Component {
         // let message = new Message(1,"{\"1\":1}")
         // console.log(message.toJSON())
 
-        let addr = document.getElementById('peerAddr').value
-        let port = document.getElementById('peerPort').value
-        this.peer = new Peer(addr, port)
-        this.peer.connect((data) => {
-            console.log(data.toJSON())
-        })
+        let url = document.getElementById('peerURL').value
+        new Service([url])
     }
 
     send = () => {
@@ -34,8 +30,7 @@ class App extends Component {
                     <h1 className="App-title">Blockchain Test</h1>
                 </header>
                 <div id="data_input">
-                    <input id="peerAddr" type="text" defaultValue="127.0.0.1" />
-                    <input id="peerPort" type="text" defaultValue="80" />
+                    <input id="peerURL" type="text" defaultValue="ws://127.0.0.1" />
                     <button id="btnConnect" onClick={this.connect}>create</button>
                     <button id="btnSend" onClick={this.send}>send</button>
                     <br />

@@ -1,31 +1,42 @@
 import Message from './message'
-import {Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from './behaviors'
-import {Error} from './behaviors'
+import { Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from './behaviors'
+import Error from './errors'
 
-function HandleJSONData(jsonString) {
-    let message = Message.fromJSON(jsonString)
-    let data = JSON.parse(message.data)
-    if (message.type === 'info'){
-        return new Info(data)
+function handleJSONData(jsonStrings) {
+    let behaviors = []
+    for (var i in jsonStrings) {
+        let message = Message.fromJSON(jsonStrings[i])
+        let data = JSON.parse(message.data)
+        if (message.type === 'info') {
+            behaviors.push(new Info(data))
+            continue
+        }
+        if (message.type === 'request:blocks') {
+            behaviors.push(new RequestBlocks(data))
+            continue
+        }
+        if (message.type === 'request:peers') {
+            behaviors.push(new RequestPeer(data))
+            continue
+        }
+        if (message.type === 'response:blocks') {
+            behaviors.push(new ResponseBlocks(data))
+            continue
+        }
+        if (message.type === 'response:peers') {
+            behaviors.push(new ResponsePeers(data))
+            continue
+        }
+        if (message.type === 'broadcast:block') {
+            behaviors.push(new BroadcastBlock(data))
+            continue
+        }
+        if (message.type === 'error') {
+            behaviors.push(new Error(data))
+            continue
+        }
     }
-    if (message.type === 'request:blocks'){
-        return new RequestBlocks(data)
-    }
-    if (message.type === 'request:peers'){
-        return new RequestPeer(data)
-    }
-    if (message.type === 'response:blocks'){
-        return new ResponseBlocks(data)
-    }
-    if (message.type === 'response:peers'){
-        return new ResponsePeers(data)
-    }
-    if (message.type === 'broadcast:block'){
-        return new BroadcastBlock(data)
-    }
-    if (message.type === 'error'){
-        return new Error(data)
-    }
+    return behaviors
 }
 
-export {HandleJSONData}
+export { handleJSONData }

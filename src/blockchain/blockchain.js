@@ -56,7 +56,7 @@ class Blockchain {
     validateBlock(block) {
         if (block.isValid() === false)
             return Error.InvalidBlockError("block hash or signature is invalid", block)
-        if (block.chainID != this.id)
+        if (block.chainID !== this.id)
             return Error.MismatchedIDError("the block id mismatch chain id", block)
         let exitsBlock = this.getBlock(block.height)
         if (exitsBlock != null){

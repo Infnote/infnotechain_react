@@ -1,21 +1,22 @@
 import Message from '../protocol/message'
+import {Info} from '../protocol/behaviors'
 
 class Peer {
-    constructor(address = '', port = 80) {
-        this.address = address
-        this.port = port
+    constructor(url) {
+        this.url = url
         this.socket = null
     }
 
     connect(onmessage) {
-        let url = 'ws://' + this.address + ':' + this.port
-        this.socket = new WebSocket(url)
+        this.socket = new WebSocket(this.url)
 
         // init socket
         this.socket.onopen = () => {
             let url = this.socket.url
-            this.socket.send("test")
-            console.info('Peer:[' + url + '] connected.')
+            let info = Info.create()
+            let message = new Message('info', info.toJSON())
+            this.socket.send(message)
+            console.info('Peer:[' + url + '] is connected.')
         }
         this.socket.onerror = (err) => {
             let url = this.socket.url
@@ -26,8 +27,7 @@ class Peer {
             // retry mechanism to be done
         }
         this.socket.onmessage = (data) => {
-            let message = Message.fromJSON(data.data)
-            onmessage(message)
+            onmessage(data.data)
             console.log('Recv from peer:[' + this.socket.url + ']\n' + data.data)
         }
     }

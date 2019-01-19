@@ -9,6 +9,16 @@ class Info extends Behavior {
         return ['version', 'peers', 'chains', 'platform', 'fullNode']
     }
 
+    static create() {
+        return new Info({
+            'version' : '1.1',
+            'peers' : 0,
+            'chains' : SETTINGS.chains,
+            'platform' : 'web',
+            'fullNode' : false
+        })
+    }
+
     constructor(props) {
         super()
         if (props)
@@ -211,6 +221,13 @@ class ResponseBlocks extends Behavior {
 class BroadcastBlock extends Behavior {
     static getMembers(){
         return ['blockJSON']
+    }
+
+    static create(block)
+    {
+        return new BroadcastBlock({
+            'blockJSON' : block.toJSON()
+        })
     }
 
     constructor(props) {
