@@ -33,7 +33,7 @@ class Block {
         return this.height === 0
     }
 
-    get dict() {
+    toDict() {
         let data = {
             'hash': this.blockHash,
             'time': this.time,
@@ -46,12 +46,13 @@ class Block {
     }
 
     get dataForHashing() {
-        let data = this.dict
+        let data = this.toDict()
 
         var result = data['height'].toString() + data['time'].toString()
-        if (data['prev_hash'] != null)
-            result += data['prev_hash'].toString()
         var buffer = new Buffer(result);
+        if (data['height'] > 0)
+            buffer = Buffer.concat([buffer, bs58.decode(data['prev_hash'])])
+        //    result += data['prev_hash'].toString()
         return Buffer.concat([buffer, bs58.decode(data['payload'])])
     }
 
@@ -70,10 +71,8 @@ class Block {
     }
 
     toJSON() {
-        return JSON.stringify(
-            this.dict,
-            Object.keys(this.dict).sort()
-        )
+        return JSON.stringify(this.toDict())
+        //   Object.keys(this.toDict()).sort()
     }
 }
 

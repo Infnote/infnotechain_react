@@ -2,41 +2,36 @@ import Message from './message'
 import { Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from './behaviors'
 import Error from './errors'
 
-function handleJSONData(jsonStrings) {
-    let behaviors = []
-    for (var i in jsonStrings) {
-        let message = Message.fromJSON(jsonStrings[i])
-        let data = JSON.parse(message.data)
-        if (message.type === 'info') {
-            behaviors.push(new Info(data))
-            continue
-        }
-        if (message.type === 'request:blocks') {
-            behaviors.push(new RequestBlocks(data))
-            continue
-        }
-        if (message.type === 'request:peers') {
-            behaviors.push(new RequestPeer(data))
-            continue
-        }
-        if (message.type === 'response:blocks') {
-            behaviors.push(new ResponseBlocks(data))
-            continue
-        }
-        if (message.type === 'response:peers') {
-            behaviors.push(new ResponsePeers(data))
-            continue
-        }
-        if (message.type === 'broadcast:block') {
-            behaviors.push(new BroadcastBlock(data))
-            continue
-        }
-        if (message.type === 'error') {
-            behaviors.push(new Error(data))
-            continue
-        }
+function handleJSONData(jsonString) {
+    let message = Message.fromJSON(jsonString)
+    let data = message.data
+    var behavior = null
+    if (message.type === 'info')
+        behavior = new Info(data)
+    else if (message.type === 'request:blocks')
+        behavior = new RequestBlocks(data)
+    else if (message.type === 'request:peers')
+        behavior = new RequestPeer(data)
+    else if (message.type === 'response:blocks')
+        behavior = new ResponseBlocks(data)
+    else if (message.type === 'response:peers')
+        behavior = new ResponsePeers(data)
+    else if (message.type === 'broadcast:block')
+        behavior = new BroadcastBlock(data)
+    else if (message.type === 'error')
+        behavior = new Error(data)
+    else {
+        return [Message.fromError(Error.invalidMessageError('can not match the message type'))]
     }
-    return behaviors
+    let err = behavior.validate()
+    if (err !== null) {
+        return [Message.fromError(err)]
+    }
+
+    return behavior.react().reduce((result, b) => {
+        result.push(Message.fromBehavior(b))
+        return result
+    }, [])
 }
 
 export { handleJSONData }

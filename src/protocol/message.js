@@ -17,13 +17,28 @@ class Message {
         return message
     }
 
-    constructor(type = null, jsonString = null) {
+    static fromBehavior(behavior) {
+        let firstCap = new RegExp("(.)([A-Z][a-z]+)")
+        let allCap = new RegExp("([a-z0-9][A-Z])")
+
+        var name = behavior.constructor.name
+        name = name.replace(firstCap, '$1:$2')
+        name = name.replace(allCap, "$1:$2")
+
+        return new Message(name.toLowerCase(), behavior.toDict())
+    }
+
+    static fromError(error) {
+        return new Message('error', error.toDict())
+    }
+
+    constructor(type = null, data = null) {
         this.type = type
-        this.data = jsonString
+        this.data = data
         this.id = Message.generateID()
     }
 
-    get dict() {
+    toDict() {
         let data = {
             'type': this.type,
             'data': this.data,
@@ -33,7 +48,7 @@ class Message {
     }
 
     toJSON() {
-        return JSON.stringify(this.dict)
+        return JSON.stringify(this.toDict())
     }
 }
 

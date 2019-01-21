@@ -1,9 +1,8 @@
-import Peer from './peer'
+import {Peer, Peers} from '../network'
 import {handleJSONData, BroadcastBlock, Message} from '../protocol'
 
 class Service {
-    constructor(urls){
-        this.peers = []
+    addPeers(urls){
         for (var i in urls) {
             let peer = new Peer(urls[i])
             peer.connect(handleJSONData)
@@ -11,12 +10,24 @@ class Service {
         }
     }
 
+    constructor(){
+        this.peers = []
+        this.addPeers(Peers.getPeers())
+    }
+
     broadcastBlock(block){
         for (var i in this.peers){
-            let data = BroadcastBlock.create(block).toJSON()
+            let data = BroadcastBlock.create(block).toDict()
             let message = new Message('broadcast:block', data)
             this.peers[i].send(message.toJSON())
         }
+    }
+
+    getAllCurrentPeers() {
+        var urls = []
+        for (var i in this.peers)
+            urls.push(this.peers[i].url)
+        return urls
     }
 }
 

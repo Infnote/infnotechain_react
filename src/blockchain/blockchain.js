@@ -22,6 +22,10 @@ class Blockchain {
         return Storage.getChainCount(this.id)
     }
 
+    get isEmpty() {
+        return (Storage.getChainCount(this.id) === 0)
+    }
+
     updateChainCount(height) {
         Storage.updateChainCount(this.id, height)
     }
@@ -49,20 +53,16 @@ class Blockchain {
         return block
     }
 
-    // isValid(block) {
-    //     return block.isValid && block.chainID===this.id
-    // }
-
     validateBlock(block) {
         if (block.isValid() === false)
-            return Error.InvalidBlockError("block hash or signature is invalid", block)
+            return Error.InvalidBlockError("block hash or signature is invalid")
         if (block.chainID !== this.id)
-            return Error.MismatchedIDError("the block id mismatch chain id", block)
+            return Error.MismatchedIDError("the block id mismatch chain id")
         let exitsBlock = this.getBlock(block.height)
         if (exitsBlock != null){
             if ((exitsBlock.prevHash !== block.prevHash) || (exitsBlock.blockHash !== block.blockHash))
-                return Error.MismatchedIDError("the block id mismatch chain id", exitsBlock, block)
-            return Error.ExistBlockError("block already exist", block)
+                return Error.ForkError("the blockchain is forked")
+            return Error.ExistBlockError("block already exist")
         }
         return null
     }

@@ -4,28 +4,24 @@ class Error {
         this.desc = desc
     }
 
-    static BlockValidationError(desc, block) {
-        return new Error('BlockValidationError', desc + '\n' + block.toJSON())
+    static BlockValidationError(err) {
+        return new Error('BlockValidationError', err)
     }
 
-    static InvalidBlockError(desc, block) {
-        return new Error('BlockValidationError', desc + '\n' + block.toJSON())
+    static InvalidBlockError(err) {
+        return new Error('InvalidBlockError', err)
     }
 
-    static ForkError(desc, block1, block2) {
-        return new Error('BlockValidationError', desc + '\n' + block1.toJSON() + '\n' + block2.toJSON())
+    static ForkError(err) {
+        return new Error('ForkError', err)
     }
 
-    static ExistBlockError(desc, block) {
-        return new Error('BlockValidationError', desc + '\n' + block.toJSON())
+    static ExistBlockError(err) {
+        return new Error('ExistBlockError', err)
     }
 
-    static MismatchedIDError(desc, block) {
-        return new Error('BlockValidationError', desc + '\n' + block.toJSON())
-    }
-
-    static DangledBlockError(desc, block) {
-        return new Error('BlockValidationError', desc + '\n' + block.toJSON())
+    static MismatchedIDError(err) {
+        return new Error('MismatchedIDError', err)
     }
 }
 

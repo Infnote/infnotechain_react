@@ -7,6 +7,18 @@ class Error extends Behavior {
         this.desc = desc
     }
 
+    toDict() {
+        let data = {
+            'code': this.code,
+            'desc': this.desc,
+        }
+        return data
+    }
+
+    toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
     static invalidMessageError(err) {
         return new Error("InvalidMessage", err)
     }
@@ -37,6 +49,15 @@ class Error extends Behavior {
     
     static URLError(err) {
         return new Error("URLError", err)
+    }
+
+    validate(){
+        return null
+    }
+
+    react(){
+        var behaviors = []
+        return behaviors
     }
 }
 

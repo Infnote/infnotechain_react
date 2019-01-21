@@ -1,21 +1,29 @@
 import SETTINGS from '../utils/settings'
-import {Storage, Blockchain, Block } from '../blockchain'
+import {Blockchain, Block} from '../blockchain'
+import {Peers} from '../network'
 import Behavior from './behavior'
 import Error from './errors'
 import url from 'url'
+import UAParser from 'ua-parser-js'
 
 class Info extends Behavior {
     static getMembers(){
-        return ['version', 'peers', 'chains', 'platform', 'fullNode']
+        return ['version', 'peers', 'chains', 'platform', 'full_node']
     }
 
     static create() {
+        var chains = {}
+        for (var i in SETTINGS.chains){
+            let blockchain = new Blockchain(SETTINGS.chains[i])
+            chains[blockchain.id] = blockchain.count
+        }
+        var parser = new UAParser()
         return new Info({
             'version' : '1.1',
-            'peers' : 0,
-            'chains' : SETTINGS.chains,
-            'platform' : 'web',
-            'fullNode' : false
+            'peers' : Peers.getPeersCount(),
+            'chains' : chains,
+            'platform' : parser.getBrowser(),
+            'full_node' : false
         })
     }
 
@@ -26,37 +34,42 @@ class Info extends Behavior {
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
         Info.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        return dict       
     }
 
     validate() {
         if (this.version !== '1.1')
-            return Error.IncompatibleProtocolVersion("only accept v1.1 protocol")
+            return Error.incompatibleProtocolVersion("only accept v1.1 protocol")
         if (this.peers < 0)
-            return Error.BadRequestError("'peers' needs to be a non-negative number")
+            return Error.badRequestError("'peers' needs to be a non-negative number")
         return null
     }
 
     react() {
         var behaviors = []
         if (this.peers > 0)
-            behaviors.push(new RequestPeer({'count':this.peers}))
+            behaviors.push(new RequestPeers({'count':this.peers}))
         for (var i in this.chains) {
             let key = Object.keys(this.chains[i])[0]
             let value = this.chains[i][key]
             if (SETTINGS.chains.includes(key) === false)
                 continue
-            if (Storage.getChainCount(key) > value)
+            let blockchain = new Blockchain(key)
+            if (blockchain.count > value)
                 continue
-            behaviors.push(new RequestBlocks({'chainID':key, 'from':Storage.getChainCount(key), 'to':value - 1}))
+            behaviors.push(new RequestBlocks({'chainID':key, 'from':blockchain.count, 'to':value - 1}))
         }
         return behaviors
     }
 }
 
-class RequestPeer extends Behavior {
+class RequestPeers extends Behavior {
     static getMembers(){
         return ['count']
     }
@@ -64,25 +77,29 @@ class RequestPeer extends Behavior {
     constructor(props) {
         super()
         if (props)
-            RequestPeer.getMembers().forEach(name => this[name] = props[name])
+            RequestPeers.getMembers().forEach(name => this[name] = props[name])
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
-        RequestPeer.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        RequestPeers.getMembers().forEach(name => dict[name] = this[name])
+        return dict       
     }
 
     validate() {
         if (this.count <= 0)
-            return Error.BadRequestError("'count' needs to be a non-negative number")
+            return Error.badRequestError("'count' needs to be a non-negative number")
         return null
     }
 
     react() {
         var behaviors = []
         // TODO: maintain peers
-        behaviors.push(new ResponsePeers({'peers':['wss://chain.infnote.com:32767/', 'wss://chain.infnote.com:32761/']}))
+        behaviors.push(new ResponsePeers({'peers': Peers.getPeers(this.count)}))
         return behaviors
     }
 }
@@ -99,9 +116,13 @@ class ResponsePeers extends Behavior {
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
         ResponsePeers.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        return dict       
     }
 
     validate() {
@@ -115,14 +136,14 @@ class ResponsePeers extends Behavior {
 
     react() {
         var behaviors = []
-        // TODO: save new peers
+        Peers.addPeers(this.peers)
         return behaviors
     }
 }
 
 class RequestBlocks extends Behavior {
     static getMembers(){
-        return ['chainID','from','to']
+        return ['chain_id','from','to']
     }
 
     constructor(props) {
@@ -132,18 +153,26 @@ class RequestBlocks extends Behavior {
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
         RequestBlocks.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        return dict       
     }
 
     validate() {
-        if (SETTINGS.chains.includes(this.chainID) === false)
-            return Error.ChainNotAcceptError(this.ChainID)
+        // console.log(this.chain_id)
+        // console.log(SETTINGS.chains.includes(this.chain_id))
+        // console.log(SETTINGS.chains)
+        if (SETTINGS.chains.includes(this.chain_id) === false)
+            return Error.chainNotAcceptError(this.Chain_id)
         if (this.from > this.to)
-            return Error.BadRequestError("'from' must greater or equal 'to'")
-        if (Storage.getChainCount(this.chainID) < this.from)
-            return Error.BadRequestError("request not existed blocks")
+            return Error.badRequestError("'from' must greater or equal 'to'")
+        let blockchain = new Blockchain(this.chain_id)
+        if (blockchain.count < this.from)
+            return Error.badRequestError("request not existed blocks")
         return null
     }
 
@@ -152,65 +181,69 @@ class RequestBlocks extends Behavior {
         var behaviors = []
         var blocks = []
         var size = 0
-        let blockchain = new Blockchain(this.chainID)
+        let blockchain = new Blockchain(this.chain_id)
         for (var i = this.from; i <= this.to; i++) {
             let block = blockchain.getBlock(i)
             if (block == null)
                 break
 
             if (size + block.size > 1024 * 100) {
-                behaviors.push(new ResponseBlocks({'blocksJSON':blocks}))
+                behaviors.push(new ResponseBlocks({'blocks':blocks}))
                 blocks = []
-                blocks.push(block.toJSON())
+                blocks.push(block.toDict())
                 size = block.size
             } else {
-                blocks.push(block.toJSON())
+                blocks.push(block.toDict())
                 size += block.size
             }
         }
         if (blocks.length > 0)
-            behaviors.push(new ResponseBlocks({'blocksJSON':blocks}))
+            behaviors.push(new ResponseBlocks({'blocks':blocks}))
         return behaviors
     }
 }
 
 class ResponseBlocks extends Behavior {
     static getMembers(){
-        return ['blocksJSON']
+        return ['blocks']
     }
 
     constructor(props) {
         super()
-        this.blocks = []
+        this.blockObjects = []
         if (props)
             ResponseBlocks.getMembers().forEach(name => this[name] = props[name])
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
         ResponseBlocks.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        return dict       
     }
 
     validate() {
-        for (var i in this.blocksJSON) {
-            let blockJSON = this.blocksJSON[i]
-            let block = Block.fromJSON(blockJSON)
+        for (var i in this.blocks) {
+            let blockDict = this.blocks[i]
+            let block = Block.fromDict(blockDict)
             if (SETTINGS.chains.includes(block.chainID) === false)
-                return Error.ChainNotAcceptError(block.chainID())
+                return Error.chainNotAcceptError(block.chainID())
             let blockchain = new Blockchain(block.chainID)
             let err = blockchain.validateBlock(block)
             if (err != null)
                 return Error.blockValidationError(err)
-            this.blocks.push(block)
+            this.blockObjects.push(block)
         }
         return null
     }
 
     react() {
         var behaviors = []
-        for (var i in this.blocks) {
-            let block = this.blocks[i]
+        for (var i in this.blockObjects) {
+            let block = this.blockObjects[i]
             let blockchain = new Blockchain(block.chainID)
             blockchain.saveBlock(block)
         }
@@ -220,47 +253,51 @@ class ResponseBlocks extends Behavior {
 
 class BroadcastBlock extends Behavior {
     static getMembers(){
-        return ['blockJSON']
+        return ['block']
     }
 
     static create(block)
     {
         return new BroadcastBlock({
-            'blockJSON' : block.toJSON()
+            'block' : block.toDict()
         })
     }
 
     constructor(props) {
         super()
-        this.block = null
+        this.blockObject = null
         if (props)
             BroadcastBlock.getMembers().forEach(name => this[name] = props[name])
     }
 
     toJSON() {
+        return JSON.stringify(this.toDict())
+    }
+
+    toDict() {
         var dict = {}
         BroadcastBlock.getMembers().forEach(name => dict[name] = this[name])
-        return JSON.stringify(dict)
+        return dict       
     }
 
     validate() {
-        let block = Block.fromJSON(this.blockJSON)
-        if (SETTINGS.chains.includes(block.chainID) === false)
-            return Error.ChainNotAcceptError(block.chainID())
-        let blockchain = new Blockchain(block.chainID)
-        let err = blockchain.validateBlock(block)
+        this.blockObject = Block.fromDict(this.block)
+        if (SETTINGS.chains.includes(this.blockObject.chainID) === false)
+            return Error.chainNotAcceptError(this.blockObject.chainID())
+        let blockchain = new Blockchain(this.blockObject.chainID)
+        let err = blockchain.validateBlock(this.blockObject)
         if (err != null)
             return Error.blockValidationError(err)
-        this.block = block
+
         return null
     }
 
     react() {
         var behaviors = []
         let blockchain = new Blockchain(this.block.chainID)
-        blockchain.saveBlock(this.block)
+        blockchain.saveBlock(this.blockObject)
         return behaviors
     }
 }
 
-export {Behavior, Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock }
+export {Behavior, Info, RequestPeers as RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock }

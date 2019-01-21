@@ -1,5 +1,6 @@
 import Message from '../protocol/message'
 import {Info} from '../protocol/behaviors'
+import {log} from '../utils'
 
 class Peer {
     constructor(url) {
@@ -7,34 +8,45 @@ class Peer {
         this.socket = null
     }
 
-    connect(onmessage) {
+    connect(handleMessage) {
         this.socket = new WebSocket(this.url)
 
         // init socket
         this.socket.onopen = () => {
             let url = this.socket.url
+            log.info( url + ' is connected.')
             let info = Info.create()
-            let message = new Message('info', info.toJSON())
-            this.socket.send(message)
-            console.info('Peer:[' + url + '] is connected.')
+            let message = new Message('info', info.toDict())
+            this.socket.send(message.toJSON())
+            log.info('sent message to ' + url + ':\n' + message.toJSON())
         }
         this.socket.onerror = (err) => {
             let url = this.socket.url
-            console.error('Peer:[' + url + '] error: \n' + JSON.stringify(err))
+            log.error('got socket error from ' + url + ':\n' + JSON.stringify(err))
         }
         this.socket.onclose = () => {
-            //let url = this.socket.url
+            let url = this.socket.url
+            log.info( url + ' is closed.')
             // retry mechanism to be done
         }
         this.socket.onmessage = (data) => {
-            onmessage(data.data)
-            console.log('Recv from peer:[' + this.socket.url + ']\n' + data.data)
+            let url = this.socket.url
+            log.info('received message from ' + url + ':\n' + data.data)
+            let messages = handleMessage(data.data)
+            if (messages.length > 0){
+                for (var i in messages){
+                    this.socket.send(messages[i].toJSON())
+                    log.info('sent message to ' + url + ':\n' + messages[i].toJSON())
+                }
+            }
         }
     }
 
     send(data)
     {
+        let url = this.socket.url
         this.socket.send(data)
+        log.info('sent message to ' + url + ':\n' + data)
     }
 }
 
