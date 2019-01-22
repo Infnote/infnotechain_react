@@ -6,6 +6,20 @@ import Error from './errors'
 import url from 'url'
 import UAParser from 'ua-parser-js'
 
+var messageIDs = {}
+
+var bsInstance = null
+export class BroadcastService {
+    handler = null
+
+    static shared() {
+        if (bsInstance === null) {
+            bsInstance = new BroadcastService()
+        }
+        return bsInstance
+    }
+}
+
 class Info extends Behavior {
     static getMembers(){
         return ['version', 'peers', 'chains', 'platform', 'full_node']
@@ -163,9 +177,6 @@ class RequestBlocks extends Behavior {
     }
 
     validate() {
-        // console.log(this.chain_id)
-        // console.log(SETTINGS.chains.includes(this.chain_id))
-        // console.log(SETTINGS.chains)
         if (SETTINGS.chains.includes(this.chain_id) === false)
             return Error.chainNotAcceptError(this.Chain_id)
         if (this.from > this.to)
@@ -263,9 +274,11 @@ class BroadcastBlock extends Behavior {
         })
     }
 
-    constructor(props) {
+    constructor(props, messageID, address) {
         super()
         this.blockObject = null
+        this.messageID = messageID
+        this.address = address
         if (props)
             BroadcastBlock.getMembers().forEach(name => this[name] = props[name])
     }
@@ -281,6 +294,8 @@ class BroadcastBlock extends Behavior {
     }
 
     validate() {
+        if (messageIDs[this.messageID] === true)
+        return Error.DuplicateBroadcastError(this.messageID)
         this.blockObject = Block.fromDict(this.block)
         if (SETTINGS.chains.includes(this.blockObject.chainID) === false)
             return Error.chainNotAcceptError(this.blockObject.chainID())
@@ -288,16 +303,19 @@ class BroadcastBlock extends Behavior {
         let err = blockchain.validateBlock(this.blockObject)
         if (err != null)
             return Error.blockValidationError(err)
-
         return null
     }
 
     react() {
         var behaviors = []
-        let blockchain = new Blockchain(this.block.chainID)
-        blockchain.saveBlock(this.blockObject)
+        let blockchain = new Blockchain(this.blockObject.chainID)
+        var result = blockchain.saveBlock(this.blockObject)
+        if ((result === true) && (messageIDs[this.messageID] !== true) && (BroadcastService.shared().handler !== null)) {
+            BroadcastService.shared().handler(this)
+            messageIDs[this.messageID] = true
+        }
         return behaviors
     }
 }
 
-export {Behavior, Info, RequestPeers as RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock }
+export {Behavior, Info, RequestPeers, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock}

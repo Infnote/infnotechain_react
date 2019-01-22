@@ -9,7 +9,12 @@ class Peer {
     }
 
     connect(handleMessage, handleClose, handleConnection) {
+        //try {
         this.socket = new WebSocket(this.url)
+        //}
+        // catch(err) {
+        //     log.info( err)
+        // }
 
         // init socket
         this.socket.onopen = () => {
@@ -34,7 +39,7 @@ class Peer {
         this.socket.onmessage = (data) => {
             let url = this.socket.url
             log.info('received message from ' + url + ':\n' + data.data)
-            let messages = handleMessage(data.data)
+            let messages = handleMessage(data.data, url)
             if (messages.length > 0){
                 for (var i in messages){
                     this.socket.send(messages[i].toJSON())

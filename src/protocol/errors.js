@@ -51,6 +51,10 @@ class Error extends Behavior {
         return new Error("URLError", err)
     }
 
+    static DuplicateBroadcastError(messageID){
+        return new Error("DuplicateBroadcastError", messageID + 'has already existed')
+    }
+
     validate(){
         return null
     }

@@ -1,11 +1,11 @@
-import {Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from '../protocol'
+import {Info, RequestPeers, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from '../protocol'
 import {Peers} from '../network'
 import {Blockchain, Key} from '../blockchain'
 
 test("Handling info message", () => {
     var object = new Info({'version':'1.1','peers':2,'chains':{'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45':10},'platform':'web','fullNode':false})
     expect(object.validate()).toEqual(null)
-    expect(object.react()).toEqual([new RequestPeer({'count':2}), new RequestBlocks({'chain_id':'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45','from':0,'to':9})])
+    expect(object.react()).toEqual([new RequestPeers({'count':2}), new RequestBlocks({'chain_id':'19AZfrNgBh5sxo5eVytX3K3yQvucS5vc45','from':0,'to':9})])
 })
 
 test("Handling requestBlocks message", () => {
@@ -42,7 +42,7 @@ test("Handling responseBlocks message", () => {
 })
 
 test("Handling requestPeer message test", () => {
-    var object = new RequestPeer({'count':2})
+    var object = new RequestPeers({'count':2})
     localStorage.clear()
     Peers.addPeers(['wss://chain.infnote.com:32767/','wss://chain.infnote.com:32761/'])
     expect(object.validate()).toEqual(null)

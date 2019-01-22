@@ -1,8 +1,8 @@
 import Message from './message'
-import { Info, RequestPeer, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from './behaviors'
+import { Info, RequestPeers, ResponsePeers, RequestBlocks, ResponseBlocks, BroadcastBlock } from './behaviors'
 import Error from './errors'
 
-function handleJSONData(jsonString) {
+function handleJSONData(jsonString, address) {
     let message = Message.fromJSON(jsonString)
     let data = message.data
     var behavior = null
@@ -11,13 +11,13 @@ function handleJSONData(jsonString) {
     else if (message.type === 'request:blocks')
         behavior = new RequestBlocks(data)
     else if (message.type === 'request:peers')
-        behavior = new RequestPeer(data)
+        behavior = new RequestPeers(data)
     else if (message.type === 'response:blocks')
         behavior = new ResponseBlocks(data)
     else if (message.type === 'response:peers')
         behavior = new ResponsePeers(data)
     else if (message.type === 'broadcast:block')
-        behavior = new BroadcastBlock(data)
+        behavior = new BroadcastBlock(data, message.id, address)
     else if (message.type === 'error')
         behavior = new Error(data)
     else {

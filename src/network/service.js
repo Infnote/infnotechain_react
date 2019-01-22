@@ -1,12 +1,12 @@
-import {Peer, Peers} from '../network'
-import {handleJSONData, BroadcastBlock, Message} from '../protocol'
-import {log} from '../utils'
+import { Peer, Peers } from '../network'
+import { handleJSONData, BroadcastBlock, Message, BroadcastService } from '../protocol'
+import { log } from '../utils'
 
 class Service {
     handleClose = (peer) => {
         for (var i in this.peers)
-            if (this.peers[i] === peer){
-                this.peers.splice(i,1)
+            if (this.peers[i] === peer) {
+                this.peers.splice(i, 1)
                 return
             }
     }
@@ -15,29 +15,37 @@ class Service {
         this.peers.push(peer)
     }
 
-    addPeers(urls){
+    handleBroadcast = (broadcast) => {
+        this.broadcastBlock(broadcast.blockObject, broadcast.address)
+        //log.info('Broadcasted the block to ' + this.getAllCurrentPeers())
+    }
+
+    addPeers(urls) {
         for (var i in urls) {
             let peer = new Peer(urls[i])
             peer.connect(handleJSONData, this.handleClose, this.handleConnection)
         }
     }
 
-    constructor(){
+    constructor() {
         this.peers = []
         this.addPeers(Peers.getPeers())
+        BroadcastService.shared().handler = this.handleBroadcast
     }
 
-    broadcastBlock(block){
-        for (var i in this.peers){
-            try{
-                let data = BroadcastBlock.create(block).toDict()
-                let message = new Message('broadcast:block', data)
-                this.peers[i].send(message.toJSON())
+    broadcastBlock(block, notBroadcastAddress) {
+        for (var i in this.peers)
+            if (this.peers[i].url !== notBroadcastAddress) {
+                console.log(this.peers[i].url, notBroadcastAddress)
+                try {
+                    let data = BroadcastBlock.create(block).toDict()
+                    let message = new Message('broadcast:block', data)
+                    this.peers[i].send(message.toJSON())
+                }
+                catch (err) {
+                    log.info('failed to broadcast the block to ' + this.peers[i].url + ' due to ' + err)
+                }
             }
-            catch(err){
-                log.info('failed to broadcast the block to '+ this.peers[i].url)
-            }
-        }
     }
 
     getAllCurrentPeers() {
