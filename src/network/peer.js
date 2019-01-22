@@ -8,7 +8,7 @@ class Peer {
         this.socket = null
     }
 
-    connect(handleMessage) {
+    connect(handleMessage, handleClose, handleConnection) {
         this.socket = new WebSocket(this.url)
 
         // init socket
@@ -19,14 +19,16 @@ class Peer {
             let message = new Message('info', info.toDict())
             this.socket.send(message.toJSON())
             log.info('sent message to ' + url + ':\n' + message.toJSON())
+            handleConnection(this)
         }
         this.socket.onerror = (err) => {
             let url = this.socket.url
-            log.error('got socket error from ' + url + ':\n' + JSON.stringify(err))
+            log.info('got socket error from ' + url + ':\n' + JSON.stringify(err))
         }
         this.socket.onclose = () => {
             let url = this.socket.url
             log.info( url + ' is closed.')
+            handleClose(this)
             // retry mechanism to be done
         }
         this.socket.onmessage = (data) => {

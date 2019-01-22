@@ -55,15 +55,15 @@ class Info extends Behavior {
         var behaviors = []
         if (this.peers > 0)
             behaviors.push(new RequestPeers({'count':this.peers}))
-        for (var i in this.chains) {
-            let key = Object.keys(this.chains[i])[0]
-            let value = this.chains[i][key]
+        for (var i in Object.keys(this.chains)) {
+            let key = Object.keys(this.chains)[i]
+            let value = this.chains[key]
             if (SETTINGS.chains.includes(key) === false)
                 continue
             let blockchain = new Blockchain(key)
-            if (blockchain.count > value)
+            if (blockchain.count >= value)
                 continue
-            behaviors.push(new RequestBlocks({'chainID':key, 'from':blockchain.count, 'to':value - 1}))
+            behaviors.push(new RequestBlocks({'chain_id':key, 'from':blockchain.count, 'to':value - 1}))
         }
         return behaviors
     }

@@ -8,20 +8,8 @@ import {log} from './utils'
 class App extends Component {
 
     init = () => {
-        // let num = 10
-        // localStorage.clear()
-        // const buf = '5k1XmJn4556WCM'
-        // this.blockchain = Blockchain.fromPrivateKey(Key.fromWIF("Kxqkq6zZyf8czck2iZpcp55MQ2zweE6qTz3DUEMy51igJoMvD54w"))
-        // var chainID = ''
-        // this.currentID = 0
-        // for (; this.currentID<num; this.currentID++){
-        //     let block = this.blockchain.createBlock(buf, this.currentID)
-        //     this.blockchain.saveBlock(block)
-        //     chainID = block.chainID
-        // }
-        // log.info('created 10 blocks with the chainID of ' + chainID)
-
         this.service = new Service()
+        // let url = document.getElementById('peerURL').value
     }
 
     broadcast = () => {
@@ -35,13 +23,6 @@ class App extends Component {
         this.service.broadcastBlock(block)
     }
 
-    peer = () => {
-        let url = document.getElementById('peerURL').value
-
-
-        this.service.addPeers([url])
-    }
-
     render() {
         return (
             <div className="App">
@@ -51,8 +32,6 @@ class App extends Component {
                 </header>
                 <div id="data_input">
                     <input id="peerURL" type="text" defaultValue="ws://10.89.58.116:32767" />
-                    <button id="btnPeer" onClick={this.peer}>addPeer</button>
-                    <br /><br /><br />
                     <button id="btnConnect" onClick={this.init}>init</button>
                     <button id="btnSend" onClick={this.broadcast}>broadcast</button>
                     <br />
