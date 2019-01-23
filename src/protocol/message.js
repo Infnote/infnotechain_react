@@ -32,10 +32,13 @@ class Message {
         return new Message('error', error.toDict())
     }
 
-    constructor(type = null, data = null) {
+    constructor(type = null, data = null, id = null) {
         this.type = type
         this.data = data
-        this.id = Message.generateID()
+        if (id === null)
+            this.id = Message.generateID()
+        else
+            this.id = id
     }
 
     toDict() {

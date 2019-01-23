@@ -1,5 +1,6 @@
 import Storage from './storage'
 import {SETTINGS} from '../utils'
+import url from 'url'
 
 class Peers {
     static migrate()
@@ -25,10 +26,23 @@ class Peers {
     }
 
     static addPeers(peers) {
-        Storage.addPeers(peers)
-    }
+        for (var i in peers){
 
-    static 
+            let parse = url.parse(peers[i])
+
+            var port = parse.protocol === 'ws:'? 80: 443
+            if (parse.port !== null)
+                port = parse.port
+            
+            var path = '/'
+            if (parse.path != null)
+                path = parse.path
+            
+            let peer = parse.protocol + '//' + parse.hostname + ':' + port + path
+            
+            Storage.addPeer(peer)
+        }
+    }
 }
 
 export default Peers

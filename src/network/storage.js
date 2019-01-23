@@ -1,3 +1,5 @@
+import url from 'url'
+
 class Storage {
     static savePeers(peers) {
         let index = 'peers'
@@ -12,13 +14,19 @@ class Storage {
         return JSON.parse(localStorage.getItem(index))
     }
 
-    static addPeers(peers) {
+    static addPeer(peer) {
         var result = Storage.getPeers()
-        for (var i in peers){
-            if (result.includes(peers[i]) === false)
-                result.push(peers[i])
+        let parserPeer = url.parse(peer)
+        var flag = true
+        for (var i in result){
+            let parser = url.parse(result[i])
+            if (parser.hostname === parserPeer.hostname && parser.port === parserPeer.port)
+                flag = false
         }
-        Storage.savePeers(result)
+        if (flag){
+            result.push(peer)
+            Storage.savePeers(result)
+        }
     }
 
     static migrate() {

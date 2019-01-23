@@ -10,8 +10,6 @@ class App extends Component {
     init = () => {
         this.service = new Service()
         // let url = document.getElementById('peerURL').value
-
-        
     }
 
     broadcast = () => {
@@ -21,8 +19,6 @@ class App extends Component {
         this.blockchain.saveBlock(block)
         var chainID = block.chainID
         log.info('created 1 blocks with the chainID of ' + chainID)
-        
-        log.info('current peers are ' + this.service.getAllCurrentPeers())
         this.service.broadcastBlock(block)
     }
 
@@ -34,7 +30,7 @@ class App extends Component {
                     <h1 className="App-title">Blockchain Test</h1>
                 </header>
                 <div id="data_input">
-                    <input id="peerURL" type="text" defaultValue="ws://10.89.58.116:32767" />
+                    {/*<input id="peerURL" type="text" defaultValue="ws://10.89.58.116:32767" />*/}
                     <button id="btnConnect" onClick={this.init}>init</button>
                     <button id="btnSend" onClick={this.broadcast}>broadcast</button>
                     <br />

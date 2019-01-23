@@ -16,8 +16,7 @@ class Service {
     }
 
     handleBroadcast = (broadcast) => {
-        this.broadcastBlock(broadcast.blockObject, broadcast.address)
-        //log.info('Broadcasted the block to ' + this.getAllCurrentPeers())
+        this.broadcastBlock(broadcast.blockObject, broadcast.address, broadcast.messageID)
     }
 
     addPeers(urls) {
@@ -33,13 +32,12 @@ class Service {
         BroadcastService.shared().handler = this.handleBroadcast
     }
 
-    broadcastBlock(block, notBroadcastAddress) {
+    broadcastBlock(block, notBroadcastAddress, messageID) {
         for (var i in this.peers)
             if (this.peers[i].url !== notBroadcastAddress) {
-                console.log(this.peers[i].url, notBroadcastAddress)
                 try {
                     let data = BroadcastBlock.create(block).toDict()
-                    let message = new Message('broadcast:block', data)
+                    let message = new Message('broadcast:block', data, messageID)
                     this.peers[i].send(message.toJSON())
                 }
                 catch (err) {

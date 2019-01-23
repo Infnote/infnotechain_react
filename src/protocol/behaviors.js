@@ -298,7 +298,7 @@ class BroadcastBlock extends Behavior {
         return Error.DuplicateBroadcastError(this.messageID)
         this.blockObject = Block.fromDict(this.block)
         if (SETTINGS.chains.includes(this.blockObject.chainID) === false)
-            return Error.chainNotAcceptError(this.blockObject.chainID())
+            return Error.chainNotAcceptError(this.blockObject.chainID)
         let blockchain = new Blockchain(this.blockObject.chainID)
         let err = blockchain.validateBlock(this.blockObject)
         if (err != null)
