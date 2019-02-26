@@ -25,6 +25,7 @@ class Peers {
         return Storage.getPeers().length
     }
 
+    // peers urls
     static addPeers(peers) {
         for (var i in peers){
 

@@ -49,11 +49,14 @@ class Peer {
         }
     }
 
-    send(data)
-    {
+    send(data) {
         let url = this.socket.url
         this.socket.send(data)
         log.info('sent message to ' + url + ':\n' + data)
+    }
+
+    close() {
+        this.socket.close(1000);
     }
 }
 
