@@ -60,7 +60,6 @@ class BlockContent extends Component {
         } catch (e) {
             if (block.payload.length > 1000) {
                 payload = atob(block.payload).slice(0, 500) + ' ...(' + (block.payload.length - 1000) + ' bytes follow)'
-                console.log(payload)
             }
         }
         

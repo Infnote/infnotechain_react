@@ -47,18 +47,18 @@ class Peer {
             }
             // retry mechanism to be done
         }
-        this.socket.onmessage = (data) => {
+        this.socket.onmessage = response => {
             let url = this.socket.url
-            // log.info('received message from ' + url + ':\n' + data.data)
+            log.info('received message from ' + url + ':\n' + response.data.type)
             if (!handleMessage) {
                 return
             }
-            let messages = handleMessage(data.data, url)
+            let messages = handleMessage(response.data, url)
             if (messages && messages.length > 0){
-                for (var i in messages){
-                    this.socket.send(messages[i].toJSON())
-                    log.info('sent message to ' + url + ':\n' + messages[i].toJSON())
-                }
+                messages.forEach(msg => {
+                    this.socket.send(msg.toJSON())
+                    log.info('sent message to ' + url + ':\n' + msg)
+                })
             }
         }
     }
@@ -68,9 +68,7 @@ class Peer {
     }
 
     send(data) {
-        let url = this.socket.url
         this.socket.send(data)
-        log.info('sent message to ' + url + ':\n' + data)
     }
 }
 
