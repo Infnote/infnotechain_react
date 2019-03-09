@@ -63,7 +63,7 @@ class Manager extends Component {
 
     handleSelectChain = key => () => {
         var indexes = []
-        for (var i = 0; i < this.state.chainList[key]; i++) {
+        for (var i = this.state.chainList[key] - 1; i >= 0; i--) {
             indexes.push(i)
         }
         this.setState({selectedChain: key, blockList: indexes})

@@ -51,12 +51,19 @@ class BlockContent extends Component {
 
         var date = new Date(block.time * 1000)
 
-        var payload = JSON.parse(atob(block.payload))
-        if (!payload) {
-            payload = block.payload
-        } else {
+        var payload = ''
+        var isJSON = false
+        try {
+            payload = JSON.parse(atob(block.payload))
             payload = syntaxHighlight(payload)
+            isJSON = true
+        } catch (e) {
+            if (block.payload.length > 1000) {
+                payload = atob(block.payload).slice(0, 500) + ' ...(' + (block.payload.length - 1000) + ' bytes follow)'
+                console.log(payload)
+            }
         }
+        
 
         return (
             <Grid item className={classes.content}>
@@ -79,12 +86,28 @@ class BlockContent extends Component {
                 <Divider />
                 <div className={classes.space} />
 
-                <Typography variant="overline">Payload</Typography>
-                <Typography 
-                    component="pre"
-                    className={classes.value} 
-                    dangerouslySetInnerHTML={{__html: payload}} 
-                />
+                <Typography variant="overline">Payload ({block.payload.length} bytes)</Typography>
+                {(() => {
+                    if (isJSON) {
+                        return (
+                            <Typography 
+                                component="pre"
+                                className={classes.value} 
+                                style={{color: '#D4D4D4'}}
+                                dangerouslySetInnerHTML={{__html: payload}} 
+                            />
+                        )
+                    } else {
+                        return (
+                            <Typography 
+                                component="pre"
+                                className={classes.value} 
+                                style={{color: '#D4D4D4'}} 
+                            >{payload}</Typography>
+                        )
+                    }
+                })()}
+                
 
             </Grid>
         )

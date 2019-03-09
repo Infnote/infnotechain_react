@@ -15,13 +15,15 @@ code {
 
 pre {
   outline: 1px solid #ccc; 
-  padding: 5px; 
-  margin: 5px;
+  padding: 8px; 
+  margin: 8px;
   overflow: scroll;
   white-space: pre-wrap;
+  background-color: #1E1E1E;
+  color: #D4D4D4;
 }
-.string { color: green; }
-.number { color: darkorange; }
-.boolean { color: blue; }
-.null { color: magenta; }
-.key { color: red; }
+.string { color: #CE9178; }
+.number { color: #B5CEA8; }
+.boolean { color: #569CD6; }
+.null { color: #569CD6; }
+.key { color: #9CDCFE; }
