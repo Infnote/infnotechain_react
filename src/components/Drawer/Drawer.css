@@ -4,6 +4,11 @@
 }
 
 .drawer .title {
-    font-family: 'Roboto Mono';
+    padding: 16px;
+}
+
+.drawer .element {
+    font-family: "Roboto Mono", source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
     font-size: 12px;
 }

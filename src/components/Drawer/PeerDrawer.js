@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { List, ListItem, ListItemText, Grid } from '@material-ui/core'
+import { List, ListItem, ListItemText, Grid, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import './Drawer.css'
 
@@ -14,6 +14,7 @@ class PeerDrawer extends Component {
         const { peers, onSelect } = this.props
         return (
             <Grid item className="drawer">
+                <Typography variant="title" className="title">Peer List</Typography>
                 <List>
                     {peers.map((peer, index) => (
                         <ListItem 
@@ -25,7 +26,7 @@ class PeerDrawer extends Component {
                                 onSelect(peer)()
                             }} 
                         >
-                            <ListItemText primary={peer.url} primaryTypographyProps={{className: 'title'}} />
+                            <ListItemText primary={peer.url} primaryTypographyProps={{className: 'element'}} />
                         </ListItem>
                     ))}
                 </List>

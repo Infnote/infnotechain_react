@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { List, ListItem, ListItemText, Grid } from '@material-ui/core'
+import { List, ListItem, ListItemText, Grid, Typography } from '@material-ui/core'
 import PropType from 'prop-types'
 import './Drawer.css'
 
@@ -13,6 +13,7 @@ class ChainDrawer extends Component {
         const { chains, onSelect } = this.props
         return (
             <Grid item className="drawer">
+                <Typography variant="title" className="title">Chain List</Typography>
                 <List>
                     {Object.keys(chains).map((key, index) => (
                         <ListItem 
@@ -26,7 +27,7 @@ class ChainDrawer extends Component {
                         >
                             <ListItemText 
                                 primary={key} 
-                                primaryTypographyProps={{className: 'title'}} 
+                                primaryTypographyProps={{className: 'element'}} 
                                 secondary={'Block Count: ' + chains[key]}
                             />
                         </ListItem>
