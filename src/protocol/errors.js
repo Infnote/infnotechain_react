@@ -20,27 +20,27 @@ class Error extends Behavior {
     }
 
     static invalidMessageError(err) {
-        return new Error("InvalidMessage", err)
+        return new Error('InvalidMessage', err)
     }
 
     static invalidBehaviorError(err) {
-        return new Error("InvalidBehaviorError", err)
+        return new Error('InvalidBehaviorError', err)
     }
     
     static incompatibleProtocolVersion(err) {
-        return new Error("IncompatibleProtocolVersionError", err)
+        return new Error('IncompatibleProtocolVersionError', err)
     }
     
     static badRequestError(err) {
-        return new Error("BadRequestError", err)
+        return new Error('BadRequestError', err)
     }
     
     static JSONDecodeError(err) {
-        return new Error("JSONDecodeError", err)
+        return new Error('JSONDecodeError', err)
     }
     
     static chainNotAcceptError(err) {
-        return new Error("ChainNotAcceptError", err)
+        return new Error('ChainNotAcceptError', err)
     }
     
     static blockValidationError(validateErr) {
@@ -48,11 +48,11 @@ class Error extends Behavior {
     }
     
     static URLError(err) {
-        return new Error("URLError", err)
+        return new Error('URLError', err)
     }
 
     static DuplicateBroadcastError(messageID){
-        return new Error("DuplicateBroadcastError", messageID + 'has already existed')
+        return new Error('DuplicateBroadcastError', messageID + 'has already existed')
     }
 
     validate(){

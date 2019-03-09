@@ -30,7 +30,7 @@ class Peer {
             let info = Info.create()
             let message = new Message('info', info.toDict())
             this.socket.send(message.toJSON())
-            log.info('sent message to ' + url + ':\n' + message.toJSON())
+            log.info('sent info to ' + url)
             if (handleConnection) {
                 handleConnection(this)
             }
@@ -49,7 +49,6 @@ class Peer {
         }
         this.socket.onmessage = response => {
             let url = this.socket.url
-            log.info('received message from ' + url + ':\n' + response.data.type)
             if (!handleMessage) {
                 return
             }
@@ -57,7 +56,6 @@ class Peer {
             if (messages && messages.length > 0){
                 messages.forEach(msg => {
                     this.socket.send(msg.toJSON())
-                    log.info('sent message to ' + url + ':\n' + msg)
                 })
             }
         }

@@ -35,7 +35,7 @@ class PeerDrawer extends Component {
 }
 
 PeerDrawer.propTypes = {
-    peers: PropTypes.element,
+    peers: PropTypes.array,
     onSelect: PropTypes.func,
 }
 

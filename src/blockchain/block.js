@@ -1,3 +1,4 @@
+/* global Buffer */
 import bs58 from 'bs58'
 import { Key } from '.'
 import createHash from 'create-hash'
