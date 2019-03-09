@@ -9,7 +9,6 @@ branches:
 
 script:
   - yarn build
-  - git clean -fd
 
 jobs:
   include:
