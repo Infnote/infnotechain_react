@@ -53,7 +53,8 @@ class Block {
         if (data['height'] > 0)
             buffer = Buffer.concat([buffer, bs58.decode(data['prev_hash'])])
         //    result += data['prev_hash'].toString()
-        return Buffer.concat([buffer, bs58.decode(data['payload'])])
+        var payload = Buffer.from(data['payload'], 'base64')
+        return Buffer.concat([buffer, payload])
     }
 
     get chainID(){
