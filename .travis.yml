@@ -1,0 +1,25 @@
+language: node_js
+node_js: 
+  - "node"
+
+branches:
+  only:
+    - master
+    - gh-pages
+
+script:
+  - yarn build
+  - git clean -fd
+
+jobs:
+  include:
+    - stage: blockchain.infnote.com
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+        keep-history: false
+        local-dir: ./build/
+        fqdn: blockchain.infnote.com
+        on:
+          branch: master
