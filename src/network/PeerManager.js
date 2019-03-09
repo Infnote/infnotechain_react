@@ -2,11 +2,11 @@ import Storage from './storage'
 import {SETTINGS} from '../utils'
 import url from 'url'
 
-class Peers {
+class PeerManager {
     static migrate()
     {
         if (Storage.isMigrated() === false){
-            Peers.addPeers(SETTINGS.peers)
+            PeerManager.addPeers(SETTINGS.peers)
         }
         Storage.migrate()
     }
@@ -45,4 +45,4 @@ class Peers {
     }
 }
 
-export default Peers
+export default PeerManager

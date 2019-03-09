@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.9.2",
     "big-integer": "^1.6.40",
     "bitcoinjs-lib": "^4.0.2",
     "bitcoinjs-message": "^2.0.0",

@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './components/App';
 import * as serviceWorker from './serviceWorker';
-import {Peers} from './network'
+import { PeerManager } from 'network'
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
@@ -12,4 +12,4 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-Peers.migrate();
+PeerManager.migrate();

@@ -1,4 +1,4 @@
-import { Peer, Peers } from '../network'
+import { Peer, PeerManager } from '.'
 import { handleJSONData, BroadcastBlock, Message, BroadcastService } from '../protocol'
 import { log } from '../utils'
 
@@ -28,7 +28,7 @@ class Service {
 
     constructor() {
         this.peers = []
-        this.addPeers(Peers.getPeers())
+        this.addPeers(PeerManager.getPeers())
         BroadcastService.shared().handler = this.handleBroadcast
     }
 

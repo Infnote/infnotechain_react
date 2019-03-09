@@ -1,6 +1,6 @@
 import SETTINGS from '../utils/settings'
 import {Blockchain, Block} from '../blockchain'
-import {Peers} from '../network'
+import { PeerManager } from 'network'
 import Behavior from './behavior'
 import Error from './errors'
 import url from 'url'
@@ -34,7 +34,7 @@ class Info extends Behavior {
         var parser = new UAParser()
         return new Info({
             'version' : '1.1',
-            'peers' : Peers.getPeersCount(),
+            'peers' : PeerManager.getPeersCount(),
             'chains' : chains,
             'platform' : parser.getBrowser(),
             'full_node' : false
@@ -113,7 +113,7 @@ class RequestPeers extends Behavior {
     react() {
         var behaviors = []
         // TODO: maintain peers
-        behaviors.push(new ResponsePeers({'peers': Peers.getPeers(this.count)}))
+        behaviors.push(new ResponsePeers({'peers': PeerManager.getPeers(this.count)}))
         return behaviors
     }
 }
@@ -150,7 +150,7 @@ class ResponsePeers extends Behavior {
 
     react() {
         var behaviors = []
-        Peers.addPeers(this.peers)
+        PeerManager.addPeers(this.peers)
         return behaviors
     }
 }
