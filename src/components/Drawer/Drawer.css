@@ -1,0 +1,10 @@
+.drawer {
+    border-right: 1px solid #DDD;
+    height: 100%;
+    overflow: scroll;
+}
+
+.drawer .title {
+    font-family: 'Roboto Mono';
+    font-size: 12px;
+}

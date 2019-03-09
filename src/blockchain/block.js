@@ -1,5 +1,5 @@
 import bs58 from 'bs58'
-import { Key } from '.';
+import { Key } from '.'
 import createHash from 'create-hash'
 
 class Block {
@@ -49,7 +49,7 @@ class Block {
         let data = this.toDict()
 
         var result = data['height'].toString() + data['time'].toString()
-        var buffer = new Buffer(result);
+        var buffer = new Buffer(result)
         if (data['height'] > 0)
             buffer = Buffer.concat([buffer, bs58.decode(data['prev_hash'])])
         //    result += data['prev_hash'].toString()

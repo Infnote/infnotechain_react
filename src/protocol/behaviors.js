@@ -59,9 +59,9 @@ class Info extends Behavior {
 
     validate() {
         if (this.version !== '1.1')
-            return Error.incompatibleProtocolVersion("only accept v1.1 protocol")
+            return Error.incompatibleProtocolVersion('only accept v1.1 protocol')
         if (this.peers < 0)
-            return Error.badRequestError("'peers' needs to be a non-negative number")
+            return Error.badRequestError('"peers" needs to be a non-negative number')
         return null
     }
 
@@ -106,7 +106,7 @@ class RequestPeers extends Behavior {
 
     validate() {
         if (this.count <= 0)
-            return Error.badRequestError("'count' needs to be a non-negative number")
+            return Error.badRequestError('"count" needs to be a non-negative number')
         return null
     }
 
@@ -143,7 +143,7 @@ class ResponsePeers extends Behavior {
         for (var key in this.peers) {
             let protocol = url.parse(this.peers[key]).protocol
             if ((protocol !== 'wss:') && (protocol !== 'ws:'))
-                return Error.URLError("not a websocket URL")
+                return Error.URLError('not a websocket URL')
         }
         return null
     }
@@ -180,10 +180,10 @@ class RequestBlocks extends Behavior {
         if (SETTINGS.chains.includes(this.chain_id) === false)
             return Error.chainNotAcceptError(this.Chain_id)
         if (this.from > this.to)
-            return Error.badRequestError("'from' must greater or equal 'to'")
+            return Error.badRequestError('"from" must greater or equal "to"')
         let blockchain = new Blockchain(this.chain_id)
         if (blockchain.count < this.from)
-            return Error.badRequestError("request not existed blocks")
+            return Error.badRequestError('request not existed blocks')
         return null
     }
 
@@ -295,7 +295,7 @@ class BroadcastBlock extends Behavior {
 
     validate() {
         if (messageIDs[this.messageID] === true)
-        return Error.DuplicateBroadcastError(this.messageID)
+            return Error.DuplicateBroadcastError(this.messageID)
         this.blockObject = Block.fromDict(this.block)
         if (SETTINGS.chains.includes(this.blockObject.chainID) === false)
             return Error.chainNotAcceptError(this.blockObject.chainID)

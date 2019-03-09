@@ -8,6 +8,13 @@ class Peer {
         this.socket = null
     }
 
+    get isConnect() {
+        if (!this.socket) {
+            return false
+        }
+        return this.socket.readyState === this.socket.OPEN
+    }
+
     connect(handleMessage, handleClose, handleConnection) {
         //try {
         this.socket = new WebSocket(this.url)
@@ -24,7 +31,9 @@ class Peer {
             let message = new Message('info', info.toDict())
             this.socket.send(message.toJSON())
             log.info('sent message to ' + url + ':\n' + message.toJSON())
-            handleConnection(this)
+            if (handleConnection) {
+                handleConnection(this)
+            }
         }
         this.socket.onerror = (err) => {
             let url = this.socket.url
@@ -33,14 +42,19 @@ class Peer {
         this.socket.onclose = () => {
             let url = this.socket.url
             log.info( url + ' is closed.')
-            handleClose(this)
+            if (handleClose) {
+                handleClose(this)
+            }
             // retry mechanism to be done
         }
         this.socket.onmessage = (data) => {
             let url = this.socket.url
-            log.info('received message from ' + url + ':\n' + data.data)
+            // log.info('received message from ' + url + ':\n' + data.data)
+            if (!handleMessage) {
+                return
+            }
             let messages = handleMessage(data.data, url)
-            if (messages.length > 0){
+            if (messages && messages.length > 0){
                 for (var i in messages){
                     this.socket.send(messages[i].toJSON())
                     log.info('sent message to ' + url + ':\n' + messages[i].toJSON())
@@ -49,8 +63,11 @@ class Peer {
         }
     }
 
-    send(data)
-    {
+    close() {
+        this.socket.close(1000)
+    }
+
+    send(data) {
         let url = this.socket.url
         this.socket.send(data)
         log.info('sent message to ' + url + ':\n' + data)

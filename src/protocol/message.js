@@ -18,12 +18,12 @@ class Message {
     }
 
     static fromBehavior(behavior) {
-        let firstCap = new RegExp("(.)([A-Z][a-z]+)")
-        let allCap = new RegExp("([a-z0-9][A-Z])")
+        let firstCap = new RegExp('(.)([A-Z][a-z]+)')
+        let allCap = new RegExp('([a-z0-9][A-Z])')
 
         var name = behavior.constructor.name
         name = name.replace(firstCap, '$1:$2')
-        name = name.replace(allCap, "$1:$2")
+        name = name.replace(allCap, '$1:$2')
 
         return new Message(name.toLowerCase(), behavior.toDict())
     }

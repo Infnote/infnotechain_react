@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {Service} from '../network'
 import NavBar from './NavBar'
+import Manager from './Manager'
 
 class App extends Component {
 
@@ -10,8 +11,9 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
+            <div>
                 <NavBar />
+                <Manager />
             </div>
         );
     }

@@ -1,18 +1,42 @@
 import React, { Component } from 'react'
-import { Drawer, Typography, Divider, List } from '@material-ui/core'
+import { List, ListItem, ListItemText, Grid } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import './Drawer.css'
+
 
 class PeerDrawer extends Component {
+    state = {
+        selectedIndex: -1
+    }
+
     render() {
+        const { selectedIndex } = this.state
+        const { peers, onSelect } = this.props
         return (
-            <Drawer variant="permanent">
-                <Typography variant="h6">Peers</Typography>
-                <Divider />
+            <Grid item className="drawer">
                 <List>
-                    
+                    {peers.map((peer, index) => (
+                        <ListItem 
+                            button 
+                            selected={selectedIndex === index} 
+                            key={index} 
+                            onClick={() => {
+                                this.setState({selectedIndex: index})
+                                onSelect(peer)()
+                            }} 
+                        >
+                            <ListItemText primary={peer.url} primaryTypographyProps={{className: 'title'}} />
+                        </ListItem>
+                    ))}
                 </List>
-            </Drawer>
+            </Grid>
         )
     }
+}
+
+PeerDrawer.propTypes = {
+    peers: PropTypes.element,
+    onSelect: PropTypes.func,
 }
 
 export default PeerDrawer
