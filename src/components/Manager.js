@@ -48,6 +48,17 @@ class Manager extends Component {
             this.setState({
                 blockList: currBlockList
             })
+        } else if(this.state.selectedPeer) {
+            // another chain or no chain is currently selected
+            let newChainList = Object.assign({}, this.state.chainList)
+            Object.keys(this.state.chainList)
+                .filter(chainId => chainId === id)
+                .forEach(chainId => {
+                    newChainList[chainId] += 1
+                })
+            this.setState({chainList: newChainList})
+        } else { 
+            // or no peer is selected yet, do nothing
         }
     }
 
