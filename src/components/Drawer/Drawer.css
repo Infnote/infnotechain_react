@@ -1,6 +1,7 @@
 .drawer {
     border-right: 1px solid #DDD;
     overflow: scroll;
+    height: 100%;
 }
 
 .drawer .title {
