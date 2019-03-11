@@ -4,6 +4,7 @@ import { Grid, withStyles } from '@material-ui/core'
 import { Peer, PeerManager } from 'network'
 import { Message } from 'protocol'
 import BlockContent from './BlockContent'
+import { eventEmitter } from 'utils'
 
 const style = theme => ({
     container: {
@@ -34,6 +35,20 @@ class Manager extends Component {
         chainList: {},
         blockList: [],
         block: null
+    }
+
+    componentDidMount() {
+        eventEmitter.on('NEW_BLOCK', this.handleIncomingBlock.bind(this))
+    }
+
+    handleIncomingBlock = (id) => {
+        if (this.state.selectedChain === id) {
+            let currBlockList = this.state.blockList.slice(0)
+            currBlockList.unshift(currBlockList.length)
+            this.setState({
+                blockList: currBlockList
+            })
+        }
     }
 
     handleSelectPeer = peer => () => {
