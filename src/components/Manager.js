@@ -42,23 +42,24 @@ class Manager extends Component {
     }
 
     handleIncomingBlock = (id) => {
+        if (!this.state.selectedPeer) return false
+
+        // update chainList
+        let newChainList = Object.assign({}, this.state.chainList)
+        Object.keys(this.state.chainList)
+            .filter(chainId => chainId === id)
+            .forEach(chainId => {
+                newChainList[chainId] += 1
+            })
+        this.setState({chainList: newChainList})
+
+        // update blockList if current chain is selected
         if (this.state.selectedChain === id) {
             let currBlockList = this.state.blockList.slice(0)
             currBlockList.unshift(currBlockList.length)
             this.setState({
                 blockList: currBlockList
             })
-        } else if(this.state.selectedPeer) {
-            // another chain or no chain is currently selected
-            let newChainList = Object.assign({}, this.state.chainList)
-            Object.keys(this.state.chainList)
-                .filter(chainId => chainId === id)
-                .forEach(chainId => {
-                    newChainList[chainId] += 1
-                })
-            this.setState({chainList: newChainList})
-        } else { 
-            // or no peer is selected yet, do nothing
         }
     }
 
