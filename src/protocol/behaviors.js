@@ -1,4 +1,4 @@
-import SETTINGS from '../utils/settings'
+import {eventEmitter, SETTINGS} from 'utils'
 import {Blockchain, Block} from '../blockchain'
 import { PeerManager } from 'network'
 import Behavior from './behavior'
@@ -308,11 +308,13 @@ class BroadcastBlock extends Behavior {
 
     react() {
         var behaviors = []
-        let blockchain = new Blockchain(this.blockObject.chainID)
+        let id = this.blockObject.chainID
+        let blockchain = new Blockchain(id)
         var result = blockchain.saveBlock(this.blockObject)
         if ((result === true) && (messageIDs[this.messageID] !== true) && (BroadcastService.shared().handler !== null)) {
             BroadcastService.shared().handler(this)
             messageIDs[this.messageID] = true
+            eventEmitter.emit('NEW_BLOCK', id)
         }
         return behaviors
     }
