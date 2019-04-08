@@ -27,9 +27,8 @@ const style = theme => ({
 })
 
 class Manager extends Component {
-    peers = PeerManager.getPeers().map(url => new Peer(url))
-
     state = {
+        peers: [],
         selectedPeer: null,
         selectedChain: null,
         chainList: {},
@@ -39,6 +38,10 @@ class Manager extends Component {
 
     componentDidMount() {
         eventEmitter.on('NEW_BLOCK', this.handleIncomingBlock.bind(this))
+        eventEmitter.on('PEER_REMOVED', this.handlePeerRemoved.bind(this))
+
+        let peers = PeerManager.getPeers().map(url => new Peer(url))
+        this.setState({peers: peers})
     }
 
     handleIncomingBlock = (id) => {
@@ -61,6 +64,18 @@ class Manager extends Component {
                 blockList: currBlockList
             })
         }
+    }
+
+    handlePeerRemoved = (peer) => {
+        PeerManager.removePeers([peer])
+        this.setState({
+            selectedPeer: null,
+            selectedChain: null,
+            chainList: {},
+            blockList: [],
+            block: null
+        })
+
     }
 
     handleSelectPeer = peer => () => {
@@ -111,12 +126,12 @@ class Manager extends Component {
 
     render() {
         const { classes } = this.props
-        const { chainList, blockList, block } = this.state
+        const { peers, chainList, blockList, block } = this.state
         return (
             <div className={classes.container}>
                 <div className={classes.toolbar} />
                 <Grid container className={classes.grid} direction="row">
-                    <PeerDrawer peers={this.peers} onSelect={this.handleSelectPeer} />
+                    <PeerDrawer peers={peers} onSelect={this.handleSelectPeer} />
                     <ChainDrawer chains={chainList} onSelect={this.handleSelectChain} />
                     <BlockDrawer blocks={blockList} onSelect={this.handleSelectBlock} />
                     <BlockContent block={block} />
