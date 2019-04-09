@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import { PeerManager } from 'network'
+import { eventEmitter} from 'utils'
 
 
 const styles = theme => ({
@@ -37,7 +38,8 @@ class NavBar extends Component {
 
     handleOpenPeerModal = () => {
         this.setState({
-            modalOpen: true
+            modalOpen: true,
+            menuOpen: false
         })
     }
 
@@ -46,6 +48,8 @@ class NavBar extends Component {
         // TODO: sanitize input
         PeerManager.addPeers([this.state.url])
         this.handleModalClose()
+
+        eventEmitter.emit('PEER_ADDED')
     }
 
     handleClick = event => {

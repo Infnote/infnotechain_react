@@ -16,12 +16,13 @@ class Peer {
     }
 
     connect(handleMessage, handleClose, handleConnection) {
-        //try {
-        this.socket = new WebSocket(this.url)
-        //}
-        // catch(err) {
-        //     log.info( err)
-        // }
+        try {
+            this.socket = new WebSocket(this.url)
+        }
+        catch(err) {
+            log.info( err)
+            return false
+        }
 
         // init socket
         this.socket.onopen = () => {

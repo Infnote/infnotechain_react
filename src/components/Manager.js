@@ -25,6 +25,7 @@ class Manager extends Component {
     componentDidMount() {
         eventEmitter.on('NEW_BLOCK', this.handleIncomingBlock.bind(this))
         eventEmitter.on('PEER_REMOVED', this.handlePeerRemoved.bind(this))
+        eventEmitter.on('PEER_ADDED', this.handlePeerAdded.bind(this))
 
         let peers = PeerManager.getPeers().map(url => new Peer(url))
         this.setState({peers: peers})
@@ -50,6 +51,11 @@ class Manager extends Component {
                 blockList: currBlockList
             })
         }
+    }
+
+    handlePeerAdded = () => {
+        let peers = PeerManager.getPeers().map(url => new Peer(url))
+        this.setState({peers: peers})
     }
 
     handlePeerRemoved = (peer) => {
