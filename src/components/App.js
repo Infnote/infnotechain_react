@@ -13,15 +13,7 @@ let style = theme => ({
         bottom: 0,   
         display: 'flex',   
         flexDirection: 'column',
-    },
-    grid: {
-        flex: '1 1 auto'
-    },
-    toolbar: {
-        ...theme.mixins.toolbar,
-        flex: '0 0 auto',
-        width: '100%',
-    },
+    }
 })
 
 class App extends Component {

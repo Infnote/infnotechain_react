@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { AppBar, Toolbar, Typography, Menu, MenuItem } from '@material-ui/core'
+import { AppBar, Toolbar, Typography, Menu, MenuItem, TextField, Button } from '@material-ui/core'
+import Modal from '@material-ui/core/Modal'
 import { withStyles } from '@material-ui/core'
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import IconButton from '@material-ui/core/IconButton'
+import MenuIcon from '@material-ui/icons/Menu'
+import { PeerManager } from 'network'
 
 
 const styles = theme => ({
@@ -12,37 +13,87 @@ const styles = theme => ({
         flex: '0 0 auto',
         width: '100%',
     },
+    paper: {
+        position: 'absolute',
+        width: theme.spacing.unit * 50,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing.unit * 4,
+        outline: 'none',
+    },
+    textField: {
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
+        width: 200,
+    }
 })
 
 class NavBar extends Component {
     state = {
-        menuOpen: null
+        menuOpen: null,
+        modalOpen: null,
+        url: null
+    }
+
+    handleOpenPeerModal = () => {
+        this.setState({
+            modalOpen: true
+        })
+    }
+
+    handleAddPeer = () => {
+        // console.log(this.state.url)
+        // TODO: sanitize input
+        PeerManager.addPeers([this.state.url])
+        this.handleModalClose()
     }
 
     handleClick = event => {
-        this.setState({ menuOpen: true });
+        this.setState({ menuOpen: true })
     }
 
     handleClose = () => {
         this.setState({ menuOpen: null })
     }
 
+    handleModalClose = () => {
+        this.setState({ modalOpen: null })
+    }
+
+    handleChange = () => event => {
+        this.setState({
+            url: event.target.value
+        })
+    }
+
     render() {
         const { classes } = this.props
-        const { menuOpen } = this.state
+        const { menuOpen, modalOpen, url } = this.state
+
+        let modal = (
+            <Modal open={Boolean(modalOpen)} onClose={this.handleModalClose}>
+                <div className={classes.paper}>
+                    <TextField required id="standard-required" label="Required" defaultValue="(Enter peer url)" 
+                        className={classes.textField} margin="normal" onChange={this.handleChange()}/>
+                    <div><Button variant="contained" color="primary" onClick={this.handleAddPeer}>Add</Button></div>
+                </div>
+            </Modal>
+        )
+
         return (
             <AppBar position="static" className={classes.navbar}>
                 <Toolbar>
                     <Menu id="navMenu" open={Boolean(menuOpen)} onClose={this.handleClose}>
-                        <MenuItem>Add Peer</MenuItem>
+                        <MenuItem onClick={this.handleOpenPeerModal}>Add Peer</MenuItem>
                     </Menu>
-                    <Button aria-label="Menu" onClick={this.handleClick}>
+                    <IconButton aria-label="Menu" onClick={this.handleClick}>
                         <MenuIcon />
-                    </Button>
+                    </IconButton>
                     <Typography variant="h6" color="inherit">
                         Infnote Chain Browser
                     </Typography>
                 </Toolbar>
+                {modal}
             </AppBar>
         )
     }
