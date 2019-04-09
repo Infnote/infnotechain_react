@@ -7,23 +7,9 @@ import BlockContent from './BlockContent'
 import { eventEmitter } from 'utils'
 
 const style = theme => ({
-    container: {
-        position: 'fixed',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,   
-        display: 'flex',   
-        flexDirection: 'column',
-    },
     grid: {
         flex: '1 1 auto'
-    },
-    toolbar: {
-        ...theme.mixins.toolbar,
-        flex: '0 0 auto',
-        width: '100%',
-    },
+    }
 })
 
 class Manager extends Component {
@@ -68,7 +54,11 @@ class Manager extends Component {
 
     handlePeerRemoved = (peer) => {
         PeerManager.removePeers([peer])
+        let peers = this.state.peers
+        peers.splice(peers.indexOf(peer.url), 1)
+
         this.setState({
+            peers: peers,
             selectedPeer: null,
             selectedChain: null,
             chainList: {},
@@ -128,15 +118,12 @@ class Manager extends Component {
         const { classes } = this.props
         const { peers, chainList, blockList, block } = this.state
         return (
-            <div className={classes.container}>
-                <div className={classes.toolbar} />
-                <Grid container className={classes.grid} direction="row">
-                    <PeerDrawer peers={peers} onSelect={this.handleSelectPeer} />
-                    <ChainDrawer chains={chainList} onSelect={this.handleSelectChain} />
-                    <BlockDrawer blocks={blockList} onSelect={this.handleSelectBlock} />
-                    <BlockContent block={block} />
-                </Grid>
-            </div>
+            <Grid container className={classes.grid} direction="row">
+                <PeerDrawer peers={peers} onSelect={this.handleSelectPeer} />
+                <ChainDrawer chains={chainList} onSelect={this.handleSelectChain} />
+                <BlockDrawer blocks={blockList} onSelect={this.handleSelectBlock} />
+                <BlockContent block={block} />
+            </Grid>
         )
     }
 }
