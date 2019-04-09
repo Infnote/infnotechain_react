@@ -72,7 +72,7 @@ class NavBar extends Component {
 
     render() {
         const { classes } = this.props
-        const { menuOpen, modalOpen, url } = this.state
+        const { menuOpen, modalOpen } = this.state
 
         let modal = (
             <Modal open={Boolean(modalOpen)} onClose={this.handleModalClose}>
