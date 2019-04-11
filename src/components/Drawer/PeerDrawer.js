@@ -1,12 +1,22 @@
 import React, { Component } from 'react'
-import { List, ListItem, ListItemText, Grid, Typography } from '@material-ui/core'
+import { List, ListItem, ListItemText, Grid, Typography, ListItemSecondaryAction } from '@material-ui/core'
+import IconButton from '@material-ui/core/IconButton'
 import PropTypes from 'prop-types'
+import {eventEmitter} from 'utils'
 import './Drawer.css'
 
 
 class PeerDrawer extends Component {
     state = {
         selectedIndex: -1
+    }
+
+    handleRemove = (peer) => {
+        this.setState({
+            selectedIndex: -1
+        })
+
+        eventEmitter.emit('PEER_REMOVED', peer)
     }
 
     render() {
@@ -27,6 +37,11 @@ class PeerDrawer extends Component {
                             }} 
                         >
                             <ListItemText primary={peer.url} primaryTypographyProps={{className: 'element'}} />
+                            <ListItemSecondaryAction>
+                                <IconButton aria-label="Comments" onClick={this.handleRemove.bind(this, peer)}>
+                                    -
+                                </IconButton>
+                            </ListItemSecondaryAction>
                         </ListItem>
                     ))}
                 </List>

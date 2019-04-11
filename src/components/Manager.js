@@ -7,29 +7,14 @@ import BlockContent from './BlockContent'
 import { eventEmitter } from 'utils'
 
 const style = theme => ({
-    container: {
-        position: 'fixed',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,   
-        display: 'flex',   
-        flexDirection: 'column',
-    },
     grid: {
         flex: '1 1 auto'
-    },
-    toolbar: {
-        ...theme.mixins.toolbar,
-        flex: '0 0 auto',
-        width: '100%',
-    },
+    }
 })
 
 class Manager extends Component {
-    peers = PeerManager.getPeers().map(url => new Peer(url))
-
     state = {
+        peers: [],
         selectedPeer: null,
         selectedChain: null,
         chainList: {},
@@ -39,6 +24,11 @@ class Manager extends Component {
 
     componentDidMount() {
         eventEmitter.on('NEW_BLOCK', this.handleIncomingBlock.bind(this))
+        eventEmitter.on('PEER_REMOVED', this.handlePeerRemoved.bind(this))
+        eventEmitter.on('PEER_ADDED', this.handlePeerAdded.bind(this))
+
+        let peers = PeerManager.getPeers().map(url => new Peer(url))
+        this.setState({peers: peers})
     }
 
     handleIncomingBlock = (id) => {
@@ -61,6 +51,27 @@ class Manager extends Component {
                 blockList: currBlockList
             })
         }
+    }
+
+    handlePeerAdded = () => {
+        let peers = PeerManager.getPeers().map(url => new Peer(url))
+        this.setState({peers: peers})
+    }
+
+    handlePeerRemoved = (peer) => {
+        PeerManager.removePeers([peer])
+        let peers = this.state.peers
+        peers.splice(peers.indexOf(peer.url), 1)
+
+        this.setState({
+            peers: peers,
+            selectedPeer: null,
+            selectedChain: null,
+            chainList: {},
+            blockList: [],
+            block: null
+        })
+
     }
 
     handleSelectPeer = peer => () => {
@@ -111,17 +122,14 @@ class Manager extends Component {
 
     render() {
         const { classes } = this.props
-        const { chainList, blockList, block } = this.state
+        const { peers, chainList, blockList, block } = this.state
         return (
-            <div className={classes.container}>
-                <div className={classes.toolbar} />
-                <Grid container className={classes.grid} direction="row">
-                    <PeerDrawer peers={this.peers} onSelect={this.handleSelectPeer} />
-                    <ChainDrawer chains={chainList} onSelect={this.handleSelectChain} />
-                    <BlockDrawer blocks={blockList} onSelect={this.handleSelectBlock} />
-                    <BlockContent block={block} />
-                </Grid>
-            </div>
+            <Grid container className={classes.grid} direction="row">
+                <PeerDrawer peers={peers} onSelect={this.handleSelectPeer} />
+                <ChainDrawer chains={chainList} onSelect={this.handleSelectChain} />
+                <BlockDrawer blocks={blockList} onSelect={this.handleSelectBlock} />
+                <BlockContent block={block} />
+            </Grid>
         )
     }
 }

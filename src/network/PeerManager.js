@@ -1,28 +1,28 @@
-import Storage from './storage'
+import PeerStorage from './storage'
 import {SETTINGS} from '../utils'
 import url from 'url'
 
 class PeerManager {
     static migrate()
     {
-        if (Storage.isMigrated() === false){
+        if (PeerStorage.isMigrated() === false){
             PeerManager.addPeers(SETTINGS.peers)
         }
-        Storage.migrate()
+        PeerStorage.migrate()
     }
 
     static savePeers(peers) {
-        Storage.savePeers(peers)
+        PeerStorage.savePeers(peers)
     }
 
     static getPeers(count = 0) {
         if (count === 0)
-            return Storage.getPeers()
-        return Storage.getPeers().slice(0, count)
+            return PeerStorage.getPeers()
+        return PeerStorage.getPeers().slice(0, count)
     }
 
     static getPeersCount() {
-        return Storage.getPeers().length
+        return PeerStorage.getPeers().length
     }
 
     static addPeers(peers) {
@@ -40,8 +40,12 @@ class PeerManager {
             
             let peer = parse.protocol + '//' + parse.hostname + ':' + port + path
             
-            Storage.addPeer(peer)
+            PeerStorage.addPeer(peer)
         }
+    }
+
+    static removePeers(peers) {
+        PeerStorage.removePeers(peers)
     }
 }
 
